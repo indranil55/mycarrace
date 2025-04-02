@@ -7,7 +7,98 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
-    <script src="script.js"></script>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score-board">Points: <span id="points">0</span></div>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 500;
+        canvas.height = 700;
+
+        const carImage = new Image();
+        carImage.src = "car.png"; 
+
+        const car = { x: 225, y: 600, width: 50, height: 80, speed: 5 };
+        const obstacles = [];
+        const powerUps = [];
+        let points = 0;
+        let gameOver = false;
+        let carImageLoaded = false;
+
+        carImage.onload = function() {
+            carImageLoaded = true;
+            update();
+        };
+
+        function drawCar() {
+            if (carImageLoaded) {
+                ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
+            }
+        }
+
+        function drawScene() {
+            ctx.fillStyle = "skyblue";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "brown";
+            ctx.fillRect(100, 0, 300, canvas.height);
+            ctx.fillStyle = "white";
+            for (let i = 0; i < 10; i++) {
+                ctx.fillRect(240, i * 100, 10, 40);
+            }
+            drawCar();
+            obstacles.forEach(obj => ctx.fillRect(obj.x, obj.y, obj.width, obj.height));
+            powerUps.forEach(obj => ctx.fillRect(obj.x, obj.y, obj.width, obj.height));
+        }
+
+        function update() {
+            if (gameOver) return;
+            obstacles.forEach(obstacle => {
+                obstacle.y += car.speed;
+                if (obstacle.y > canvas.height) {
+                    obstacle.y = -100;
+                    obstacle.x = 100 + Math.random() * 200;
+                }
+                if (checkCollision(car, obstacle)) {
+                    gameOver = true;
+                    alert("Game Over!");
+                }
+            });
+
+            powerUps.forEach(powerUp => {
+                powerUp.y += car.speed;
+                if (powerUp.y > canvas.height) {
+                    powerUp.y = -200;
+                    powerUp.x = 100 + Math.random() * 200;
+                }
+                if (checkCollision(car, powerUp)) {
+                    points += 10;
+                    document.getElementById("points").innerText = points;
+                    car.speed += 1;
+                    powerUp.y = -500;
+                }
+            });
+            drawScene();
+            requestAnimationFrame(update);
+        }
+
+        function checkCollision(obj1, obj2) {
+            return obj1.x < obj2.x + obj2.width && obj1.x + obj1.width > obj2.x && obj1.y < obj2.y + obj2.height && obj1.y + obj1.height > obj2.y;
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowLeft" && car.x > 100) car.x -= 20;
+            if (event.key === "ArrowRight" && car.x + car.width < 400) car.x += 20;
+            if (event.key === "ArrowUp") car.speed += 2;
+        });
+
+        document.addEventListener("keyup", (event) => {
+            if (event.key === "ArrowUp") car.speed = 5;
+        });
+
+        obstacles.push({ x: 200, y: -100, width: 50, height: 80 });
+        powerUps.push({ x: 150, y: -300, width: 30, height: 30 });
+    </script>
 </body>
 </html>
