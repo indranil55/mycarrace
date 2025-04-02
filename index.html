@@ -11,6 +11,9 @@
         <canvas id="gameCanvas"></canvas>
         <div id="score-board">Points: <span id="points">0</span></div>
     </div>
+    <audio id="crashSound" src="sounds/crash.mp3"></audio>
+    <audio id="powerUpSound" src="sounds/powerup.mp3"></audio>
+    <audio id="engineSound" src="sounds/engine.mp3" loop></audio>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
@@ -18,8 +21,12 @@
         canvas.height = 700;
 
         const carImage = new Image();
-        carImage.src = "car.png"; 
-
+        carImage.src = "images/car.png";
+        const treeImage = new Image();
+        treeImage.src = "images/tree.png";
+        const hospitalImage = new Image();
+        hospitalImage.src = "images/hospital.png";
+        
         const car = { x: 225, y: 600, width: 50, height: 80, speed: 5 };
         const obstacles = [];
         const powerUps = [];
@@ -29,6 +36,7 @@
 
         carImage.onload = function() {
             carImageLoaded = true;
+            document.getElementById("engineSound").play();
             update();
         };
 
@@ -47,6 +55,10 @@
             for (let i = 0; i < 10; i++) {
                 ctx.fillRect(240, i * 100, 10, 40);
             }
+            for (let i = 0; i < 3; i++) {
+                ctx.drawImage(treeImage, 20, i * 250, 50, 50);
+                ctx.drawImage(hospitalImage, 430, i * 400, 50, 50);
+            }
             drawCar();
             obstacles.forEach(obj => ctx.fillRect(obj.x, obj.y, obj.width, obj.height));
             powerUps.forEach(obj => ctx.fillRect(obj.x, obj.y, obj.width, obj.height));
@@ -62,6 +74,7 @@
                 }
                 if (checkCollision(car, obstacle)) {
                     gameOver = true;
+                    document.getElementById("crashSound").play();
                     alert("Game Over!");
                 }
             });
@@ -76,6 +89,7 @@
                     points += 10;
                     document.getElementById("points").innerText = points;
                     car.speed += 1;
+                    document.getElementById("powerUpSound").play();
                     powerUp.y = -500;
                 }
             });
@@ -97,8 +111,8 @@
             if (event.key === "ArrowUp") car.speed = 5;
         });
 
-        obstacles.push({ x: 200, y: -100, width: 50, height: 80, color: "black" });
-        powerUps.push({ x: 150, y: -300, width: 30, height: 30, color: "yellow" });
+        obstacles.push({ x: 200, y: -100, width: 50, height: 80 });
+        powerUps.push({ x: 150, y: -300, width: 30, height: 30 });
     </script>
 </body>
 </html>
