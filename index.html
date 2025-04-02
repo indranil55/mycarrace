@@ -32,22 +32,18 @@
         const powerUps = [];
         let points = 0;
         let gameOver = false;
-        let imagesLoaded = 0;
-        
-        function imageLoaded() {
-            imagesLoaded++;
-            if (imagesLoaded === 3) {
-                document.getElementById("engineSound").play();
-                update();
-            }
-        }
+        let carImageLoaded = false;
 
-        carImage.onload = imageLoaded;
-        treeImage.onload = imageLoaded;
-        hospitalImage.onload = imageLoaded;
+        carImage.onload = function() {
+            carImageLoaded = true;
+            document.getElementById("engineSound").play();
+            update();
+        };
 
         function drawCar() {
-            ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
+            if (carImageLoaded) {
+                ctx.drawImage(carImage, car.x, car.y, car.width, car.height);
+            }
         }
 
         function drawScene() {
